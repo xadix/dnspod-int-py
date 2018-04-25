@@ -277,7 +277,8 @@ def main():
 
     config_dir = os.path.join(os.path.expanduser("~"),".config","xadix-dnspod")
 
-    root_parser = argparse.ArgumentParser(add_help = False)
+    root_parser = argparse.ArgumentParser(add_help = False, prog="xadix-dnspod")
+    root_parser.add_argument("--version", action="version", version="xadix-dnspod {:s}".format(dnspod.__version__))
     root_parser.add_argument("-v", "--verbose", action="count", dest="verbosity", help="increase verbosity level")
     root_parser.add_argument("-h", "--help", action="help", help="shows this help message and exit")
 

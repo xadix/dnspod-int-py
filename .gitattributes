@@ -1,1 +1,2 @@
 xadix/dnspod/__version__.py export-subst
+xadix/dnspod/_version.py export-subst

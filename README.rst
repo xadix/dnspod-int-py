@@ -6,6 +6,10 @@ Commands
 --------------------------------------------------------------------------------
 
 ::
+    # run ...
+    python -m xadix.dnspod.cli --version
+
+    # versioneer ...
     pip install --user --upgrade versioneer
     versioneer install
     python2 setup.py version
