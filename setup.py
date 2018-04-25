@@ -15,12 +15,12 @@ setuptools.setup(
     py_modules=[],
     entry_points={
         "console_scripts": [
-            "xdx-dnspod=xadix.dnspod.cli:main"
+            "xdx-dnspod=xadix.dnspod.cli:main",
         ]
     },
     install_requires=[
-        "requests",
-        "tabulate",
+        "requests>=2.18.4",
+        "tabulate>=0.8.2",
     ],
-    zip_safe=False
+    zip_safe=False,
 )
