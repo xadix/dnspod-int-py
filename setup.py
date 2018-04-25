@@ -2,6 +2,7 @@
 # https://docs.python.org/2/distutils/index.html
 # https://docs.python.org/3/distutils/index.html
 import setuptools
+import versioneer
 
 # https://docs.python.org/2/distutils/setupscript.html#additional-meta-data
 # https://docs.python.org/3/distutils/setupscript.html#additional-meta-data
@@ -10,7 +11,8 @@ import setuptools
 
 setuptools.setup(
     name="xadix-dnspod",
-    version="1.0.0",
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     packages=setuptools.find_packages(),
     py_modules=[],
     entry_points={

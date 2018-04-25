@@ -1,0 +1,2 @@
+include versioneer.py
+include xadix/dnspod/__version__.py

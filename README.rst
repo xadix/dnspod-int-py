@@ -6,6 +6,10 @@ Commands
 --------------------------------------------------------------------------------
 
 ::
+    pip install --user --upgrade versioneer
+    versioneer install
+    python2 setup.py version
+
     # view docs ...
     pip2 install -v --user --upgrade --ignore-installed restview
     restview README.rst
