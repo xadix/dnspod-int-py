@@ -27,4 +27,10 @@ setuptools.setup(
         "tabulate>=0.8.2",
     ],
     zip_safe=False,
+    classifiers=[
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+    ],
+    keywords='dnspod',
+    python_requires='>=2.7, <3',
 )
