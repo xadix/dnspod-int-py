@@ -11,6 +11,8 @@ import versioneer
 
 setuptools.setup(
     name="xadix-dnspod",
+    description="Bindings and CLI for dnspod international api (dnspod.com)",
+    url="https://github.com/xadix/dnspod-py",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     packages=setuptools.find_packages(),

@@ -1,4 +1,4 @@
-== ...
+= ...
 
 ----
 #https://packaging.python.org/guides/packaging-namespace-packages/#pkgutil-style-namespace-packages
@@ -39,3 +39,14 @@ References
 * https://www.dnspod.com/docs/index.html
 * https://github.com/DNSPod/dnspod-int-api-docs
 ----
+
+== devtools
+
+----
+pip3 install --user --upgrade --ignore-installed twine versioneer restview
+
+----
+
+== ...
+
+* https://github.com/pypa/sampleproject
