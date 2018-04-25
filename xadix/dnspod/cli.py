@@ -13,8 +13,9 @@ import tabulate
 import json
 import os.path
 #import . as dnspod
-from .. import dnspod
+from . import *
 
+'''
 class DnspodException(Exception):
     def __init__(self, message, data):
         self._message = message
@@ -181,6 +182,8 @@ class Base(object):
         return True
         
 
+'''
+
 def format_dlist(dlist, fmt):
     if fmt=="json":
         return json.dumps(dlist, sort_keys=True, indent=4)
@@ -200,6 +203,7 @@ try:
 except ImportError:
     # Python 2
     import httplib as http_client
+
 
 def do_auth(base, arguments):
     cache_data = {}   
@@ -258,19 +262,6 @@ def do_auth(base, arguments):
             os.makedirs(os.path.dirname(arguments.cache), 0700)
         with open(arguments.cache, "w") as cache_file:
             json.dump(cache_data, cache_file)
-        
-
-'''
-def do_auth(base, arguments):
-    if arguments.token is None:
-        base.auth( email = arguments.email, password = arguments.password )
-    else:
-        base.user_token = arguments.token
-
-    XADIX_DNSPOD_EMAIL
-    XADIX_DNSPOD_PASSWORD
-    XADIX_DNSPOD_TOKEN
-'''
 
 def main():
     logging.basicConfig(level=logging.INFO, datefmt='%Y-%m-%dT%H:%M:%S', stream=sys.stderr, format="%(asctime)s %(process)d %(thread)d %(levelno)03d:%(levelname)-8s %(name)-12s %(module)s:%(lineno)s:%(funcName)s %(message)s")
@@ -278,7 +269,7 @@ def main():
     config_dir = os.path.join(os.path.expanduser("~"),".config","xadix-dnspod")
 
     root_parser = argparse.ArgumentParser(add_help = False, prog="xadix-dnspod")
-    root_parser.add_argument("--version", action="version", version="xadix-dnspod {:s}".format(dnspod.__version__))
+    root_parser.add_argument("--version", action="version", version="xadix-dnspod {:s}".format(__version__))
     root_parser.add_argument("-v", "--verbose", action="count", dest="verbosity", help="increase verbosity level")
     root_parser.add_argument("-h", "--help", action="help", help="shows this help message and exit")
 
