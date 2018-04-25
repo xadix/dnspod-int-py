@@ -43,10 +43,29 @@ References
 == devtools
 
 ----
-pip3 install --user --upgrade --ignore-installed twine versioneer restview
+pip2 uninstall xadix-dnspod
+pip3 uninstall xadix-dnspod
 
+pip2 install --user --upgrade --editable .
+pip3 install --user --upgrade --editable .
+----
+
+----
+pip3 install --user --upgrade --ignore-installed twine versioneer restview wheel
+
+python setup.py sdist
+python setup.py bdist_wheel --universal
+----
+
+----
+python setup.py clean --all
+rm -rf dist/ *.egg-info
+
+python setup.py bdist_wheel
+twine upload dist/*
 ----
 
 == ...
 
 * https://github.com/pypa/sampleproject
+* https://packaging.python.org/tutorials/distributing-packages/
