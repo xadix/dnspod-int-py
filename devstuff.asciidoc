@@ -7,7 +7,6 @@
 
 ----
 # run ...
-python -m xadix.dnspod.cli --version
 
 # versioneer ...
 pip install --user --upgrade versioneer
@@ -48,6 +47,8 @@ pip3 uninstall xadix-dnspod
 
 pip2 install --user --upgrade --editable .
 pip3 install --user --upgrade --editable .
+
+python -m xadix.dnspod.cli --version
 ----
 
 ----
@@ -58,6 +59,7 @@ python setup.py bdist_wheel --universal
 ----
 
 ----
+git tag --message="tag version" 0.1.0
 python setup.py clean --all
 rm -rf dist/ *.egg-info
 
