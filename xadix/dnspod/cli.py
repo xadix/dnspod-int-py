@@ -12,9 +12,27 @@ import posixpath
 import tabulate
 import json
 import os.path
+import dns.resolver
 #import . as dnspod
 from . import *
 from . import __version__
+
+def get_public_ip():
+    resolver = dns.resolver.Resolver(configure=False)
+    nameservers = [ "ns{:d}.google.com".format(index) for index in range(1,5) ]
+    logging.debug("using nameservers %s", nameservers)
+    nameserver_ips = []
+    for record in ["A", "AAAA"]:
+        for nameserver in nameservers:
+            for answer in dns.resolver.query(nameserver, record):
+                nameserver_ips.append(answer.address)
+    logging.debug("using nameserver_ips %s", nameserver_ips)
+    resolver.nameservers = nameserver_ips
+    answer = resolver.query("o-o.myaddr.l.google.com", "TXT")
+    logging.debug("got answer = %s", answer)
+    public_ip = answer[0].strings[0]
+    logging.debug("got public_ip = %s", public_ip)
+    return public_ip
 
 def format_dlist(dlist, fmt):
     if fmt=="json":
@@ -142,9 +160,12 @@ def main():
     domain_record_create_subparser.add_argument("-n", "--name", action="store", dest="record_name", type=str, required=True, help="...")
     domain_record_create_subparser.add_argument("-l", "--line", action="store", dest="record_line", type=str, required=False, default="default", help="...")
     domain_record_create_subparser.add_argument("-t", "--type", action="store", dest="record_type", type=str, required=True, help="...")
-    domain_record_create_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
+    #domain_record_create_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
     domain_record_create_subparser.add_argument("-m", "--mx-priority", action="store", dest="record_mx_priority", type=str, required=False, help="...")
     domain_record_create_subparser.add_argument("-x", "--ttl", action="store", dest="record_ttl", type=str, required=False, help="...")
+    domain_record_create_subparser_value_group = domain_record_create_subparser.add_mutually_exclusive_group(required=True)
+    domain_record_create_subparser_value_group.add_argument("-v", "--value", action="store", dest="record_value", type=str, default=None, help="...")
+    domain_record_create_subparser_value_group.add_argument("--value-public", action="store_true", dest="record_value_public", default=False, help="...")
 
     domain_record_delete_subparser = domain_record_subparsers.add_parser("remove")
     domain_record_delete_subparser.add_argument("-n", "--name", action="store", dest="record_name", type=str, required=True, help="...")
@@ -158,17 +179,23 @@ def main():
     domain_record_modify_subparser.add_argument("-n", "--name", action="store", dest="record_name", type=str, required=True, help="...")
     domain_record_modify_subparser.add_argument("-l", "--line", action="store", dest="record_line", type=str, required=False, default="default", help="...")
     domain_record_modify_subparser.add_argument("-t", "--type", action="store", dest="record_type", type=str, required=True, help="...")
-    domain_record_modify_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
+    #domain_record_modify_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
     domain_record_modify_subparser.add_argument("-m", "--mx-priority", action="store", dest="record_mx_priority", type=str, required=False, help="...")
     domain_record_modify_subparser.add_argument("-x", "--ttl", action="store", dest="record_ttl", type=str, required=False, help="...")
+    domain_record_modify_subparser_value_group = domain_record_modify_subparser.add_mutually_exclusive_group(required=True)
+    domain_record_modify_subparser_value_group.add_argument("-v", "--value", action="store", dest="record_value", type=str, default=None, help="...")
+    domain_record_modify_subparser_value_group.add_argument("--value-public", action="store_true", dest="record_value_public", default=False, help="...")
 
     domain_record_upsert_subparser = domain_record_subparsers.add_parser("upsert")
     domain_record_upsert_subparser.add_argument("-n", "--name", action="store", dest="record_name", type=str, required=True, help="...")
     domain_record_upsert_subparser.add_argument("-l", "--line", action="store", dest="record_line", type=str, required=False, default="default", help="...")
     domain_record_upsert_subparser.add_argument("-t", "--type", action="store", dest="record_type", type=str, required=True, help="...")
-    domain_record_upsert_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
+    #domain_record_upsert_subparser.add_argument("-v", "--value", action="store", dest="record_value", type=str, required=True, help="...")
     domain_record_upsert_subparser.add_argument("-m", "--mx-priority", action="store", dest="record_mx_priority", type=str, required=False, help="...")
     domain_record_upsert_subparser.add_argument("-x", "--ttl", action="store", dest="record_ttl", type=str, required=False, help="...")
+    domain_record_upsert_subparser_value_group = domain_record_upsert_subparser.add_mutually_exclusive_group(required=True)
+    domain_record_upsert_subparser_value_group.add_argument("-v", "--value", action="store", dest="record_value", type=str, default=None, help="...")
+    domain_record_upsert_subparser_value_group.add_argument("--value-public", action="store_true", dest="record_value_public", default=False, help="...")
     arguments = root_parser.parse_args( args = sys.argv[1:] )
 
     if arguments.verbosity is not None:
@@ -183,6 +210,9 @@ def main():
 
 
     logging.debug("sys.argv = %s, arguments = %s, logging.level = %s", sys.argv, arguments, logging.getLogger("").getEffectiveLevel())
+
+    public_ip = get_public_ip()
+    logging.debug("public_ip = %s", public_ip)
 
     base = Base()
 
@@ -214,6 +244,12 @@ def main():
             base.domains.remove(domain_name = arguments.domain_name)
         elif arguments.subparser1 == "record":
             records = base.domains.records(domain_name = arguments.domain_name)
+            if "record_value" in arguments:
+                use_record_value = arguments.record_value
+                logging.debug("use_record_value = %s", use_record_value)
+            if "record_value_public" in arguments and arguments.record_value_public:
+                use_record_value = get_public_ip()
+                logging.debug("use_record_value = %s", use_record_value)
             if False: None
             elif arguments.subparser2 == "list":
                 result = records.list()
@@ -221,16 +257,16 @@ def main():
                 sys.stdout.write("\n")
             elif arguments.subparser2 == "create":
                 result = records.create( name = arguments.record_name, type = arguments.record_type, line = arguments.record_line,
-                    value = arguments.record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
+                    value = use_record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
             elif arguments.subparser2 == "modify":
                 result = records.modify( match_name = arguments.record_match_name, match_type = arguments.record_match_type, match_line = arguments.record_match_line,
                     name = arguments.record_name, type = arguments.record_type, line = arguments.record_line,
-                    value = arguments.record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
+                    value = use_record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
             elif arguments.subparser2 == "remove":
                 result = records.remove( name = arguments.record_name, type = arguments.record_type, line = arguments.record_line )
             elif arguments.subparser2 == "upsert":
                 result = records.upsert( name = arguments.record_name, type = arguments.record_type, line = arguments.record_line,
-                    value = arguments.record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
+                    value = use_record_value, mx_priority = arguments.record_mx_priority, ttl = arguments.record_ttl )
             
 
 if __name__ == "__main__":

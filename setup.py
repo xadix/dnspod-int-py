@@ -25,6 +25,7 @@ setuptools.setup(
     install_requires=[
         "requests>=2.18.4",
         "tabulate>=0.8.2",
+        "dnspython>=1.15.0",
     ],
     zip_safe=False,
     classifiers=[
